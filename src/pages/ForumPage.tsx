@@ -86,7 +86,7 @@ export default function ForumPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto p-6 max-w-5xl space-y-6">
+      <div className="container mx-auto p-6 max-w-5xl space-y-6 fade-in">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold gradient-text mb-2">Community Forum</h1>
@@ -163,7 +163,7 @@ export default function ForumPage() {
         ) : (
           <div className="space-y-4">
             {discussions.map((discussion) => (
-              <Card key={discussion.id} className="hover:shadow-lg transition-shadow">
+              <Card key={discussion.id} className="card-glow">
                 <Link to={`/forum/${discussion.id}`}>
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">

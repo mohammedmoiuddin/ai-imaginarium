@@ -3,98 +3,213 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
-All colors MUST be HSL.
-*/
+/* AI Lab Dark Futuristic Theme - Prompt-Focused Design System */
 
 @layer base {
   :root {
-    --radius: 0.5rem;
-    --background: 250 100% 99%;
-    --foreground: 260 30% 15%;
-    --card: 0 0% 100%;
-    --card-foreground: 260 30% 15%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 260 30% 15%;
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --radius: 0.75rem;
+    /* Dark futuristic base colors */
+    --background: 230 35% 7%;
+    --foreground: 210 40% 98%;
+    --card: 230 30% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 230 35% 9%;
+    --popover-foreground: 210 40% 98%;
+    
+    /* Neon accent colors - Cyan primary */
+    --primary: 190 100% 50%;
+    --primary-foreground: 230 35% 7%;
+    
+    /* Electric blue secondary */
     --secondary: 217 91% 60%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 250 40% 96%;
-    --muted-foreground: 260 10% 50%;
-    --accent: 280 100% 95%;
-    --accent-foreground: 262 83% 58%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 250 30% 88%;
-    --input: 250 30% 88%;
-    --ring: 262 83% 58%;
-    --chart-1: 262 83% 58%;
-    --chart-2: 217 91% 60%;
-    --chart-3: 280 70% 65%;
-    --chart-4: 200 80% 55%;
+    --secondary-foreground: 230 35% 7%;
+    
+    /* Purple accent */
+    --accent: 270 80% 65%;
+    --accent-foreground: 230 35% 7%;
+    
+    --muted: 230 25% 15%;
+    --muted-foreground: 215 20% 65%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 230 30% 18%;
+    --input: 230 30% 15%;
+    --ring: 190 100% 50%;
+    
+    /* Chart colors with neon theme */
+    --chart-1: 190 100% 50%;
+    --chart-2: 270 80% 65%;
+    --chart-3: 217 91% 60%;
+    --chart-4: 160 100% 45%;
     --chart-5: 310 75% 60%;
-    --sidebar-background: 260 40% 98%;
-    --sidebar-foreground: 260 30% 15%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 280 100% 95%;
-    --sidebar-accent-foreground: 262 83% 58%;
-    --sidebar-border: 250 30% 88%;
-    --sidebar-ring: 262 83% 58%;
-  }
-
-  .dark {
-    --background: 260 40% 8%;
-    --foreground: 250 100% 98%;
-    --card: 260 35% 12%;
-    --card-foreground: 250 100% 98%;
-    --popover: 260 35% 12%;
-    --popover-foreground: 250 100% 98%;
-    --primary: 262 83% 65%;
-    --primary-foreground: 260 40% 8%;
-    --secondary: 217 91% 55%;
-    --secondary-foreground: 260 40% 8%;
-    --muted: 260 30% 18%;
-    --muted-foreground: 250 20% 70%;
-    --accent: 260 30% 18%;
-    --accent-foreground: 262 83% 65%;
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 250 100% 98%;
-    --border: 260 30% 18%;
-    --input: 260 30% 18%;
-    --ring: 262 83% 65%;
-    --chart-1: 262 83% 65%;
-    --chart-2: 217 91% 55%;
-    --chart-3: 280 70% 60%;
-    --chart-4: 200 80% 50%;
-    --chart-5: 310 75% 55%;
-    --sidebar-background: 260 35% 12%;
-    --sidebar-foreground: 250 100% 98%;
-    --sidebar-primary: 262 83% 65%;
-    --sidebar-primary-foreground: 260 40% 8%;
-    --sidebar-accent: 260 30% 18%;
-    --sidebar-accent-foreground: 262 83% 65%;
-    --sidebar-border: 260 30% 18%;
-    --sidebar-ring: 262 83% 65%;
+    
+    /* Sidebar with darker theme */
+    --sidebar-background: 230 40% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 190 100% 50%;
+    --sidebar-primary-foreground: 230 35% 7%;
+    --sidebar-accent: 230 30% 14%;
+    --sidebar-accent-foreground: 190 100% 50%;
+    --sidebar-border: 230 30% 15%;
+    --sidebar-ring: 190 100% 50%;
+    
+    /* Glow colors for effects */
+    --glow-cyan: 190 100% 50%;
+    --glow-purple: 270 80% 65%;
+    --glow-blue: 217 91% 60%;
   }
 }
 
 @layer utilities {
+  /* Gradient text with neon colors */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(262 83% 58%), hsl(217 91% 60%));
+    background: linear-gradient(135deg, hsl(190 100% 50%), hsl(270 80% 65%), hsl(217 91% 60%));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
+    font-weight: 700;
   }
   
-  .dark .gradient-text {
-    background: linear-gradient(135deg, hsl(262 83% 65%), hsl(217 91% 55%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+  /* Prompt console styling */
+  .prompt-console {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+    background: hsl(230 35% 9%);
+    border: 1px solid hsl(230 30% 18%);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .prompt-console:focus-within {
+    border-color: hsl(190 100% 50%);
+    box-shadow: 0 0 20px hsla(190 100% 50% / 0.3), 0 0 40px hsla(190 100% 50% / 0.1);
+  }
+  
+  /* Glowing border effect */
+  .glow-border {
+    position: relative;
+    border: 1px solid hsl(230 30% 18%);
+    transition: all 0.3s ease;
+  }
+  
+  .glow-border:hover {
+    border-color: hsl(190 100% 50%);
+    box-shadow: 0 0 15px hsla(190 100% 50% / 0.2);
+  }
+  
+  .glow-border-purple {
+    border: 1px solid hsl(230 30% 18%);
+    transition: all 0.3s ease;
+  }
+  
+  .glow-border-purple:hover {
+    border-color: hsl(270 80% 65%);
+    box-shadow: 0 0 15px hsla(270 80% 65% / 0.2);
+  }
+  
+  /* Card with subtle glow */
+  .card-glow {
+    background: hsl(230 30% 10%);
+    border: 1px solid hsl(230 30% 18%);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+  
+  .card-glow:hover {
+    border-color: hsl(190 100% 50% / 0.5);
+    box-shadow: 0 4px 20px hsla(190 100% 50% / 0.1);
+    transform: translateY(-2px);
+  }
+  
+  /* Neon button effect */
+  .neon-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .neon-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, hsla(190 100% 50% / 0.3), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .neon-button:hover::before {
+    left: 100%;
+  }
+  
+  /* Monospace for prompts */
+  .mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+  }
+  
+  /* Smooth fade in animation */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Pulse glow animation */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+  
+  @keyframes pulseGlow {
+    0%, 100% {
+      box-shadow: 0 0 10px hsla(190 100% 50% / 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px hsla(190 100% 50% / 0.4);
+    }
+  }
+  
+  /* Typing cursor effect */
+  .typing-cursor::after {
+    content: '|';
+    animation: blink 1s step-end infinite;
+    color: hsl(190 100% 50%);
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  /* Scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(230 30% 10%);
+    border-radius: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(190 100% 50% / 0.3);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(190 100% 50% / 0.5);
   }
 }
 
@@ -105,5 +220,11 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  
+  /* Force dark mode */
+  html {
+    color-scheme: dark;
   }
 }

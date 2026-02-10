@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getAllPrompts } from '@/db/api';
 import type { Prompt } from '@/types';
-import { Copy, Check, Search } from 'lucide-react';
+import { Copy, Check, Search, Library, Terminal, Code2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function PromptLibraryPage() {
@@ -78,13 +78,13 @@ export default function PromptLibraryPage() {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'basic':
-        return 'bg-chart-1';
+        return 'border-primary/30 text-primary bg-primary/10';
       case 'intermediate':
-        return 'bg-chart-2';
+        return 'border-secondary/30 text-secondary bg-secondary/10';
       case 'advanced':
-        return 'bg-chart-3';
+        return 'border-accent/30 text-accent bg-accent/10';
       default:
-        return 'bg-muted';
+        return 'border-border text-foreground';
     }
   };
 
@@ -100,33 +100,38 @@ export default function PromptLibraryPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">Prompt Library</h1>
-          <p className="text-muted-foreground">
-            Browse and copy ready-made prompts for your projects
-          </p>
+      <div className="container mx-auto p-6 space-y-6 fade-in">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-xl flex items-center justify-center">
+            <Library className="w-6 h-6 text-background" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold gradient-text">Prompt Library</h1>
+            <p className="text-muted-foreground">
+              Browse and copy ready-made prompts for your projects
+            </p>
+          </div>
         </div>
 
-        <Card>
+        <Card className="card-glow border-primary/20">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-primary" />
               <Input
-                placeholder="Search prompts..."
+                placeholder="Search prompts by title, category, or content..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 bg-input border-border focus:border-primary focus:ring-primary/20"
               />
             </div>
           </CardContent>
         </Card>
 
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="all">All</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 bg-card border border-border">
+            <TabsTrigger value="all" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">All</TabsTrigger>
             {categories.map((cat) => (
-              <TabsTrigger key={cat} value={cat}>
+              <TabsTrigger key={cat} value={cat} className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                 {cat}
               </TabsTrigger>
             ))}
@@ -134,22 +139,26 @@ export default function PromptLibraryPage() {
 
           <TabsContent value={selectedCategory} className="space-y-4 mt-6">
             {filteredPrompts.length === 0 ? (
-              <Card>
+              <Card className="card-glow">
                 <CardContent className="py-12 text-center">
+                  <Terminal className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">No prompts found</p>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid gap-4">
                 {filteredPrompts.map((prompt) => (
-                  <Card key={prompt.id} className="hover:shadow-lg transition-shadow">
+                  <Card key={prompt.id} className="card-glow group">
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <CardTitle className="text-lg mb-2">{prompt.title}</CardTitle>
+                          <div className="flex items-center gap-3 mb-3">
+                            <Code2 className="w-5 h-5 text-primary" />
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors">{prompt.title}</CardTitle>
+                          </div>
                           <div className="flex gap-2">
-                            <Badge variant="secondary">{prompt.category}</Badge>
-                            <Badge className={getDifficultyColor(prompt.difficulty)}>
+                            <Badge variant="outline" className="border-border">{prompt.category}</Badge>
+                            <Badge variant="outline" className={getDifficultyColor(prompt.difficulty)}>
                               {prompt.difficulty}
                             </Badge>
                           </div>
@@ -158,11 +167,11 @@ export default function PromptLibraryPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleCopy(prompt)}
-                          className="shrink-0"
+                          className="shrink-0 neon-button border-primary/30 hover:bg-primary/10 hover:border-primary"
                         >
                           {copiedId === prompt.id ? (
                             <>
-                              <Check className="w-4 h-4 mr-2" />
+                              <Check className="w-4 h-4 mr-2 text-primary" />
                               Copied
                             </>
                           ) : (
@@ -175,8 +184,12 @@ export default function PromptLibraryPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="text-sm leading-relaxed">{prompt.prompt_text}</p>
+                      <div className="prompt-console">
+                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/50">
+                          <Terminal className="w-3 h-3 text-primary" />
+                          <span className="text-xs font-mono text-primary">prompt.txt</span>
+                        </div>
+                        <p className="text-sm font-mono leading-relaxed text-foreground/90">{prompt.prompt_text}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -186,9 +199,12 @@ export default function PromptLibraryPage() {
           </TabsContent>
         </Tabs>
 
-        <Card>
+        <Card className="card-glow border-accent/20">
           <CardHeader>
-            <CardTitle>How to Use</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Library className="w-5 h-5 text-accent" />
+              How to Use
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <p>1. Browse prompts by category or search for specific topics</p>

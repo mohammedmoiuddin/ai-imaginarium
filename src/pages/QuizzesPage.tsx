@@ -107,7 +107,7 @@ export default function QuizzesPage() {
 
   return (
     <MainLayout>
-      <div className="container mx-auto p-6 max-w-3xl space-y-6">
+      <div className="container mx-auto p-6 max-w-3xl space-y-6 fade-in">
         <div>
           <h1 className="text-3xl font-bold gradient-text mb-2">Interactive Quizzes</h1>
           <p className="text-muted-foreground">Test your knowledge and track your progress</p>
