@@ -20,6 +20,7 @@ export default function QuizzesPage() {
 
   const [selectedModule, setSelectedModule] = useState(moduleParam || 'basics');
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [shuffledOptions, setShuffledOptions] = useState<{ [key: string]: string[] }>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
@@ -35,6 +36,24 @@ export default function QuizzesPage() {
     { value: 'guide', label: 'Writing Guide' },
   ];
 
+  // Function to shuffle options for a quiz
+  const shuffleOptions = (quiz: Quiz) => {
+    const options = [
+      { letter: 'A', text: quiz.option_a },
+      { letter: 'B', text: quiz.option_b },
+      { letter: 'C', text: quiz.option_c },
+      { letter: 'D', text: quiz.option_d },
+    ];
+    
+    // Fisher-Yates shuffle algorithm
+    for (let i = options.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
+    }
+    
+    return options;
+  };
+
   useEffect(() => {
     const loadQuizzes = async () => {
       setLoading(true);
@@ -42,9 +61,17 @@ export default function QuizzesPage() {
       setScore(0);
       setCompleted(false);
       setShowResult(false);
+      setSelectedAnswer('');
       try {
         const data = await getQuizzesByModule(selectedModule);
         setQuizzes(data);
+        
+        // Shuffle options for each quiz
+        const shuffled: { [key: string]: string[] } = {};
+        data.forEach((quiz) => {
+          shuffled[quiz.id] = shuffleOptions(quiz).map(opt => opt.letter);
+        });
+        setShuffledOptions(shuffled);
       } catch (error) {
         console.error('Error loading quizzes:', error);
       } finally {
@@ -55,11 +82,19 @@ export default function QuizzesPage() {
   }, [selectedModule]);
 
   const currentQuiz = quizzes[currentIndex];
+  const currentShuffledOptions = currentQuiz ? shuffleOptions(currentQuiz) : [];
 
   const handleSubmitAnswer = async () => {
     if (!selectedAnswer || !currentQuiz || !profile) return;
 
-    const correct = selectedAnswer === currentQuiz.correct_option;
+    // Find the original letter for the selected shuffled option
+    const selectedOption = currentShuffledOptions.find((_, index) => 
+      String.fromCharCode(65 + index) === selectedAnswer
+    );
+    
+    const originalLetter = selectedOption?.letter || selectedAnswer;
+    const correct = originalLetter === currentQuiz.correct_option;
+    
     setIsCorrect(correct);
     setShowResult(true);
 
@@ -68,7 +103,7 @@ export default function QuizzesPage() {
     }
 
     try {
-      await submitQuizAttempt(profile.id, currentQuiz.id, selectedAnswer, correct);
+      await submitQuizAttempt(profile.id, currentQuiz.id, originalLetter, correct);
     } catch (error) {
       console.error('Error submitting quiz attempt:', error);
     }
@@ -90,6 +125,13 @@ export default function QuizzesPage() {
     setCompleted(false);
     setShowResult(false);
     setSelectedAnswer('');
+    
+    // Re-shuffle options
+    const shuffled: { [key: string]: string[] } = {};
+    quizzes.forEach((quiz) => {
+      shuffled[quiz.id] = shuffleOptions(quiz).map(opt => opt.letter);
+    });
+    setShuffledOptions(shuffled);
   };
 
   const progressPercentage = quizzes.length > 0 ? ((currentIndex + 1) / quizzes.length) * 100 : 0;
@@ -166,10 +208,11 @@ export default function QuizzesPage() {
                   <CardContent className="space-y-6">
                     <RadioGroup value={selectedAnswer} onValueChange={setSelectedAnswer} disabled={showResult}>
                       <div className="space-y-3">
-                        {['A', 'B', 'C', 'D'].map((option) => {
-                          const optionText = currentQuiz[`option_${option.toLowerCase()}` as keyof Quiz] as string;
-                          const isSelected = selectedAnswer === option;
-                          const isCorrectOption = option === currentQuiz.correct_option;
+                        {currentShuffledOptions.map((option, index) => {
+                          const displayLetter = String.fromCharCode(65 + index); // A, B, C, D based on position
+                          const optionText = option.text;
+                          const isSelected = selectedAnswer === displayLetter;
+                          const isCorrectOption = option.letter === currentQuiz.correct_option;
                           
                           let className = 'flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-colors';
                           
@@ -186,10 +229,10 @@ export default function QuizzesPage() {
                           }
 
                           return (
-                            <div key={option} className={className}>
-                              <RadioGroupItem value={option} id={option} />
-                              <Label htmlFor={option} className="flex-1 cursor-pointer">
-                                <span className="font-semibold mr-2">{option}.</span>
+                            <div key={displayLetter} className={className}>
+                              <RadioGroupItem value={displayLetter} id={displayLetter} />
+                              <Label htmlFor={displayLetter} className="flex-1 cursor-pointer">
+                                <span className="font-semibold mr-2">{displayLetter}.</span>
                                 {optionText}
                               </Label>
                               {showResult && isCorrectOption && (

@@ -6,7 +6,7 @@
 AI Imaginarium
 
 ### 1.2 Application Description
-An educational web platform dedicated to teaching users about effective prompting techniques for AI-generated images and videos. The platform provides structured learning modules, interactive practice tools, community engagement features, and gamification elements to enhance the learning experience.
+An educational web platform dedicated to teaching users about effective prompting techniques for AI-generated images and videos. The platform provides structured learning modules, interactive practice tools, community engagement features, and progress tracking to enhance the learning experience.
 
 ### 1.3 Application Type
 Web-based educational platform
@@ -62,17 +62,21 @@ Web-based educational platform
 
 ### 2.5 Prompt Library
 - Categorized collection of ready-made prompts:
-  - Nature category
-  - Technology category
-  - Education category
-  - Cinematic category
+  - All category (displays prompts from all categories combined)
+  - Nature category (multiple unique prompts suitable for AI image and video generation)
+  - Technology category (multiple unique prompts suitable for AI image and video generation)
+  - Education category (multiple unique prompts suitable for AI image and video generation)
+  - Cinematic category (multiple unique prompts suitable for AI image and video generation)
 - Copy-to-clipboard functionality for each prompt
 - Search and filter capabilities
 - Difficulty level indicators
 
 ### 2.6 Interactive Quizzes
 - Module-specific quizzes at the end of each learning section
-- Multiple-choice questions
+- 5 multiple-choice questions per quiz/module
+- Randomized order of answer options for each question
+- Randomized position of correct answer (can appear as option A, B, C, or D)
+- Correct answer revealed only after user selects an option
 - Instant feedback on answers
 - Score tracking and results display
 - Explanation of correct answers
@@ -85,13 +89,15 @@ Web-based educational platform
 - Question and answer sections
 - User feedback and rating system
 
-### 2.8 Gamification System
-- Badge collection for achievements
-- Progress tracking across modules
-- Achievement milestones
-- User score and level system
-- Visual display of earned badges
-- Achievement descriptions and earning criteria
+### 2.8 Progress Tracking System
+- Display of user learning progress based on:
+  - Modules completed
+  - Quizzes completed
+  - Overall completion percentage
+- Visual progress indicators:
+  - Progress bar
+  - Percentage indicator
+- Clean and simple presentation focused purely on learning progress
 
 ## 3. User Interface Requirements
 
@@ -125,7 +131,8 @@ Web-based educational platform
 - Password (hashed)
 - Signup date
 - Progress score
-- Earned badges
+- Modules completed count
+- Quizzes completed count
 
 ### 4.2 Prompts Data
 - Prompt ID
@@ -137,7 +144,7 @@ Web-based educational platform
 ### 4.3 Quizzes Data
 - Quiz ID
 - Question text
-- Answer options
+- Answer options (4 options per question)
 - Correct option
 - Associated module level
 
@@ -149,12 +156,12 @@ Web-based educational platform
 - Timestamp
 - Replies count
 
-### 4.5 Achievements Data
-- Achievement ID
+### 4.5 Progress Data
+- Progress ID
 - User ID
-- Badge name
-- Description
-- Date earned
+- Module completion status
+- Quiz completion status
+- Overall completion percentage
 
 ## 5. Technical Requirements
 
@@ -163,6 +170,7 @@ Web-based educational platform
 - Form validation on all input fields
 - Interactive UI elements with smooth transitions
 - Accessible design following web standards
+- Randomization logic for quiz questions and answer options
 
 ### 5.2 Backend
 - Secure authentication with password hashing
@@ -170,6 +178,7 @@ Web-based educational platform
 - Rule-based feedback system for prompt validation
 - Session management and security
 - Error handling for all operations
+- Quiz answer randomization logic
 
 ### 5.3 Database
 - Relational database structure
@@ -205,20 +214,43 @@ Web-based educational platform
 1. User navigates to learning section
 2. Selects specific module (Basics, Levels, Guide, etc.)
 3. Reviews content and examples
-4. Completes module quiz
-5. Receives instant feedback
-6. Progress and badges updated
+4. Completes module quiz with 5 questions
+5. Receives instant feedback after selecting each answer
+6. Progress updated based on completion
 
-### 7.3 Prompt Playground Flow
+### 7.3 Quiz Interaction Flow
+1. User starts quiz for completed module
+2. System displays 5 questions with randomized answer order
+3. Correct answer position randomized for each question
+4. User selects an answer option
+5. System reveals correct answer only after user selection
+6. Instant feedback provided
+7. Quiz completion recorded in progress tracking
+
+### 7.4 Prompt Playground Flow
 1. User enters custom prompt
 2. System analyzes prompt structure
 3. Provides real-time feedback
 4. Suggests improvements if needed
 5. User refines prompt based on feedback
 
-### 7.4 Community Interaction Flow
+### 7.5 Prompt Library Interaction Flow
+1. User accesses Prompt Library
+2. Selects category (All, Nature, Technology, Education, Cinematic)
+3. Browses multiple unique prompts in selected category
+4. Clicks copy-to-clipboard button for desired prompt
+5. Prompt copied for use in AI generation tools
+
+### 7.6 Community Interaction Flow
 1. User accesses forum section
 2. Browses existing topics or creates new topic
 3. Posts content or replies to discussions
 4. Receives notifications on replies
 5. Engages in ongoing conversations
+
+### 7.7 Progress Tracking Flow
+1. User accesses progress section
+2. Views modules completed count
+3. Views quizzes completed count
+4. Views overall completion percentage with progress bar
+5. Progress updates automatically as user completes activities

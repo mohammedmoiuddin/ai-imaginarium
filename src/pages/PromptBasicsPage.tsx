@@ -66,9 +66,8 @@ export default function PromptBasicsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl">💡</span>
               What are Prompts?
-            </CardTitle>
+                          </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-foreground leading-relaxed">
@@ -90,9 +89,8 @@ export default function PromptBasicsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl">⭐</span>
               Why Prompts Matter
-            </CardTitle>
+                          </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-foreground leading-relaxed">
@@ -124,9 +122,8 @@ export default function PromptBasicsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl">🎨</span>
               Text-to-Image & Text-to-Video
-            </CardTitle>
+                          </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-4">
@@ -154,9 +151,8 @@ export default function PromptBasicsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-2xl">🔑</span>
               Key Concepts to Remember
-            </CardTitle>
+                          </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
