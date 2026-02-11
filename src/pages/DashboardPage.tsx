@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -27,6 +28,14 @@ export default function DashboardPage() {
         ]);
         setProgress(progressData);
         setAchievements(achievementsData);
+        
+        // Check if this is the first login (no progress and no achievements yet)
+        // Or check if account was created very recently (within last 5 minutes)
+        const accountAge = profile.created_at ? new Date().getTime() - new Date(profile.created_at).getTime() : Infinity;
+        const isNewAccount = accountAge < 5 * 60 * 1000; // 5 minutes
+        const hasNoActivity = progressData.length === 0 && achievementsData.length === 0;
+        
+        setIsFirstLogin(isNewAccount || hasNoActivity);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -119,9 +128,11 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold gradient-text">
-                  Welcome back, {profile?.username}!
+                  {isFirstLogin ? `Welcome, ${profile?.username}!` : `Welcome back, ${profile?.username}!`}
                 </h1>
-                <p className="text-muted-foreground mt-1">Ready to master AI prompting?</p>
+                <p className="text-muted-foreground mt-1">
+                  {isFirstLogin ? 'Begin your journey to master AI prompting' : 'Ready to master AI prompting?'}
+                </p>
               </div>
             </div>
             <p className="text-lg text-foreground/90 max-w-3xl leading-relaxed">

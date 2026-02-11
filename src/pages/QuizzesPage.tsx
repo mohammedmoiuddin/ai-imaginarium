@@ -20,7 +20,7 @@ export default function QuizzesPage() {
 
   const [selectedModule, setSelectedModule] = useState(moduleParam || 'basics');
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [shuffledOptions, setShuffledOptions] = useState<{ [key: string]: string[] }>({});
+  const [shuffledOptionsMap, setShuffledOptionsMap] = useState<{ [key: string]: Array<{ letter: string; text: string }> }>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
@@ -66,12 +66,12 @@ export default function QuizzesPage() {
         const data = await getQuizzesByModule(selectedModule);
         setQuizzes(data);
         
-        // Shuffle options for each quiz
-        const shuffled: { [key: string]: string[] } = {};
+        // Shuffle options for each quiz and store them
+        const shuffledMap: { [key: string]: Array<{ letter: string; text: string }> } = {};
         data.forEach((quiz) => {
-          shuffled[quiz.id] = shuffleOptions(quiz).map(opt => opt.letter);
+          shuffledMap[quiz.id] = shuffleOptions(quiz);
         });
-        setShuffledOptions(shuffled);
+        setShuffledOptionsMap(shuffledMap);
       } catch (error) {
         console.error('Error loading quizzes:', error);
       } finally {
@@ -82,7 +82,7 @@ export default function QuizzesPage() {
   }, [selectedModule]);
 
   const currentQuiz = quizzes[currentIndex];
-  const currentShuffledOptions = currentQuiz ? shuffleOptions(currentQuiz) : [];
+  const currentShuffledOptions = currentQuiz ? (shuffledOptionsMap[currentQuiz.id] || []) : [];
 
   const handleSubmitAnswer = async () => {
     if (!selectedAnswer || !currentQuiz || !profile) return;
@@ -126,12 +126,12 @@ export default function QuizzesPage() {
     setShowResult(false);
     setSelectedAnswer('');
     
-    // Re-shuffle options
-    const shuffled: { [key: string]: string[] } = {};
+    // Re-shuffle options for all quizzes
+    const shuffledMap: { [key: string]: Array<{ letter: string; text: string }> } = {};
     quizzes.forEach((quiz) => {
-      shuffled[quiz.id] = shuffleOptions(quiz).map(opt => opt.letter);
+      shuffledMap[quiz.id] = shuffleOptions(quiz);
     });
-    setShuffledOptions(shuffled);
+    setShuffledOptionsMap(shuffledMap);
   };
 
   const progressPercentage = quizzes.length > 0 ? ((currentIndex + 1) / quizzes.length) * 100 : 0;
