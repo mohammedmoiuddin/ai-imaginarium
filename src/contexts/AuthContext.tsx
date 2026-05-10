@@ -21,9 +21,68 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signInWithUsername: (username: string, password: string) => Promise<{ error: Error | null }>;
-  signUpWithUsername: (username: string, password: string) => Promise<{ error: Error | null }>;
+  signUpWithUsername: (username: string, password: string) => Promise<{
+    error: Error | null;
+    requiresEmailConfirmation: boolean;
+  }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+}
+
+function normalizeUsername(username: string) {
+  return username.trim().toLowerCase();
+}
+
+function sanitizeUsername(username: string) {
+  const normalized = normalizeUsername(username).replace(/[^a-z0-9_]/g, '_');
+  return normalized || 'user';
+}
+
+function getBaseUsernameFromUser(user: User) {
+  const metadataUsername = typeof user.user_metadata?.username === 'string' ? user.user_metadata.username : '';
+  const emailUsername = user.email ? user.email.split('@')[0] : '';
+  const fallback = `user_${user.id.slice(0, 6)}`;
+  return sanitizeUsername(metadataUsername || emailUsername || fallback);
+}
+
+async function createProfileForUser(user: User): Promise<Profile | null> {
+  const baseUsername = getBaseUsernameFromUser(user);
+  const fallbackSuffix = user.id.replace(/-/g, '').slice(0, 6);
+  const usernameCandidates = [baseUsername, `${baseUsername}_${fallbackSuffix}`];
+
+  for (const username of usernameCandidates) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .insert({
+        id: user.id,
+        username,
+        email: user.email ?? null,
+      })
+      .select('*')
+      .maybeSingle();
+
+    if (!error) {
+      return data;
+    }
+
+    const errorMessage = error.message.toLowerCase();
+    if (errorMessage.includes('duplicate key') && errorMessage.includes('username')) {
+      continue;
+    }
+
+    console.error('Failed to create profile:', error);
+    return null;
+  }
+
+  return null;
+}
+
+async function loadOrCreateProfile(user: User): Promise<Profile | null> {
+  const existing = await getProfile(user.id);
+  if (existing) {
+    return existing;
+  }
+  return createProfileForUser(user);
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const profileData = await getProfile(user.id);
+    const profileData = await loadOrCreateProfile(user);
     setProfile(profileData);
   };
 
@@ -47,7 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        getProfile(session.user.id).then(setProfile);
+        loadOrCreateProfile(session.user).then(setProfile);
+      } else {
+        setProfile(null);
       }
       setLoading(false);
     });
@@ -55,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
-        getProfile(session.user.id).then(setProfile);
+        loadOrCreateProfile(session.user).then(setProfile);
       } else {
         setProfile(null);
       }
@@ -66,7 +127,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithUsername = async (username: string, password: string) => {
     try {
-      const email = `${username}@miaoda.com`;
+      const normalizedUsername = normalizeUsername(username);
+      const email = `${normalizedUsername}@miaoda.com`;
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -81,16 +143,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUpWithUsername = async (username: string, password: string) => {
     try {
-      const email = `${username}@miaoda.com`;
-      const { error } = await supabase.auth.signUp({
+      const normalizedUsername = normalizeUsername(username);
+      const email = `${normalizedUsername}@miaoda.com`;
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            username: normalizedUsername,
+          },
+        },
       });
 
       if (error) throw error;
-      return { error: null };
+      const requiresEmailConfirmation = Boolean(data.user && !data.session);
+      return { error: null, requiresEmailConfirmation };
     } catch (error) {
-      return { error: error as Error };
+      return { error: error as Error, requiresEmailConfirmation: false };
     }
   };
 

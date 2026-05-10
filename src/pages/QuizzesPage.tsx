@@ -14,7 +14,7 @@ import type { Quiz } from '@/types';
 import { CheckCircle2, XCircle, Trophy } from 'lucide-react';
 
 export default function QuizzesPage() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const moduleParam = searchParams.get('module');
 
@@ -85,7 +85,7 @@ export default function QuizzesPage() {
   const currentShuffledOptions = currentQuiz ? (shuffledOptionsMap[currentQuiz.id] || []) : [];
 
   const handleSubmitAnswer = async () => {
-    if (!selectedAnswer || !currentQuiz || !profile) return;
+    if (!selectedAnswer || !currentQuiz || !user) return;
 
     // Find the original letter for the selected shuffled option
     const selectedOption = currentShuffledOptions.find((_, index) => 
@@ -103,7 +103,7 @@ export default function QuizzesPage() {
     }
 
     try {
-      await submitQuizAttempt(profile.id, currentQuiz.id, originalLetter, correct);
+      await submitQuizAttempt(user.id, currentQuiz.id, originalLetter, correct);
     } catch (error) {
       console.error('Error submitting quiz attempt:', error);
     }

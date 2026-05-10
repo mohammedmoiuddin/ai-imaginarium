@@ -8,18 +8,21 @@ import type { UserProgress, QuizAttempt } from '@/types';
 import { BookOpen, CheckCircle, TrendingUp, Target } from 'lucide-react';
 
 export default function AchievementsPage() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
-      if (!profile) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
         const [progressData, attemptsData] = await Promise.all([
-          getUserProgress(profile.id),
-          getUserQuizAttempts(profile.id),
+          getUserProgress(user.id),
+          getUserQuizAttempts(user.id),
         ]);
         setProgress(progressData);
         setQuizAttempts(attemptsData);
@@ -30,7 +33,7 @@ export default function AchievementsPage() {
       }
     };
     loadData();
-  }, [profile]);
+  }, [user?.id]);
 
   // Calculate module progress
   const totalModules = 5; // Basics, Levels, Guide, Comparison, and one more

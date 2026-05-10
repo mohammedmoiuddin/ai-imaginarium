@@ -8,30 +8,50 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { markModuleComplete, getModuleProgress } from '@/db/api';
 import { CheckCircle2, ArrowRight, Lightbulb } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function PromptBasicsPage() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const checkProgress = async () => {
-      if (!profile) return;
-      const progress = await getModuleProgress(profile.id, 'Prompt Basics');
+      if (!user) return;
+      const progress = await getModuleProgress(user.id, 'Prompt Basics');
       setIsCompleted(progress?.completed || false);
     };
     checkProgress();
-  }, [profile]);
+  }, [user?.id]);
 
   const handleComplete = async () => {
-    if (!profile) return;
+    if (!user) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in to mark modules as completed.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setLoading(true);
+    setIsCompleted(true);
     try {
-      await markModuleComplete(profile.id, 'Prompt Basics');
-      setIsCompleted(true);
+      await markModuleComplete(user.id, 'Prompt Basics');
+      toast({
+        title: 'Completed',
+        description: 'Prompt Basics has been marked as completed.',
+      });
     } catch (error) {
+      setIsCompleted(false);
       console.error('Error marking module complete:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      toast({
+        title: 'Update failed',
+        description: message,
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }

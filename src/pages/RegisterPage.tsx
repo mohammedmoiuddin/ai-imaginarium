@@ -47,15 +47,27 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
-    const { error: signUpError } = await signUpWithUsername(username, password);
+    const { error: signUpError, requiresEmailConfirmation } = await signUpWithUsername(username, password);
 
     if (signUpError) {
       setLoading(false);
-      if (signUpError.message.includes('already registered')) {
+      const message = signUpError.message.toLowerCase();
+      if (message.includes('already registered')) {
         setError('Username already exists');
+      } else if (message.includes('database error saving new user')) {
+        setError('Signup failed in database trigger. Please run the latest Supabase migration and try again.');
+      } else if (message.includes('signup is disabled')) {
+        setError('Signup is disabled in Supabase Auth settings. Enable email signup and try again.');
       } else {
-        setError('Registration failed. Please try again.');
+        setError(`Registration failed: ${signUpError.message}`);
       }
+      return;
+    }
+
+    if (requiresEmailConfirmation) {
+      setLoading(false);
+      setError('Account created, but email confirmation is required in Supabase. Disable "Confirm email" in Supabase Auth settings to use username login instantly.');
+      setTimeout(() => navigate('/login'), 3000);
       return;
     }
 
@@ -64,7 +76,11 @@ export default function RegisterPage() {
     setLoading(false);
 
     if (signInError) {
-      setError('Registration successful! Please sign in.');
+      if (signInError.message.toLowerCase().includes('email not confirmed')) {
+        setError('Account created, but email confirmation is required before login.');
+      } else {
+        setError('Registration successful! Please sign in.');
+      }
       setTimeout(() => navigate('/login'), 2000);
     } else {
       navigate('/dashboard', { replace: true });

@@ -10,7 +10,7 @@ import { User, Trophy, Target, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function ProfilePage() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
@@ -18,12 +18,15 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const loadData = async () => {
-      if (!profile) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
         const [progressData, achievementsData, attemptsData] = await Promise.all([
-          getUserProgress(profile.id),
-          getUserAchievements(profile.id),
-          getUserQuizAttempts(profile.id),
+          getUserProgress(user.id),
+          getUserAchievements(user.id),
+          getUserQuizAttempts(user.id),
         ]);
         setProgress(progressData);
         setAchievements(achievementsData);
@@ -35,7 +38,7 @@ export default function ProfilePage() {
       }
     };
     loadData();
-  }, [profile]);
+  }, [user?.id]);
 
   if (loading) {
     return (
@@ -47,7 +50,10 @@ export default function ProfilePage() {
     );
   }
 
-  if (!profile) return null;
+  const displayName = profile?.username || user?.email?.split('@')[0] || 'Learner';
+  const memberSince = profile?.created_at || user?.created_at;
+  const profileRole = profile?.role || 'user';
+  const totalScore = profile?.progress_score || 0;
 
   const completedModules = progress.filter((p) => p.completed).length;
   const correctAttempts = quizAttempts.filter((a) => a.is_correct).length;
@@ -68,14 +74,16 @@ export default function ProfilePage() {
                 <User className="w-10 h-10 text-primary-foreground" />
               </div>
               <div>
-                <CardTitle className="text-2xl">{profile.username}</CardTitle>
+                <CardTitle className="text-2xl">{displayName}</CardTitle>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant={profile.role === 'admin' ? 'default' : 'secondary'}>
-                    {profile.role}
+                  <Badge variant={profileRole === 'admin' ? 'default' : 'secondary'}>
+                    {profileRole}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    Member since {format(new Date(profile.created_at), 'MMM yyyy')}
-                  </span>
+                  {memberSince && (
+                    <span className="text-sm text-muted-foreground">
+                      Member since {format(new Date(memberSince), 'MMM yyyy')}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -90,7 +98,7 @@ export default function ProfilePage() {
             <CardContent>
               <div className="flex items-center gap-3">
                 <Target className="w-8 h-8 text-primary" />
-                <span className="text-3xl font-bold">{profile.progress_score}</span>
+                <span className="text-3xl font-bold">{totalScore}</span>
               </div>
             </CardContent>
           </Card>

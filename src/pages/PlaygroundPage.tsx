@@ -147,10 +147,15 @@ export default function PlaygroundPage() {
                     </div>
                   </div>
                   <Textarea
-                    placeholder="// Enter your AI prompt here...
-// Example: A futuristic cyberpunk city at night, neon lights, flying cars, cinematic, 8k"
+                    placeholder="Example: A futuristic cyberpunk city at night, neon lights, flying cars, cinematic, 8k"
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAnalyze();
+                      }
+                    }}
                     className="min-h-[200px] resize-none bg-transparent border-0 focus-visible:ring-0 font-mono text-sm leading-relaxed p-0"
                   />
                 </div>

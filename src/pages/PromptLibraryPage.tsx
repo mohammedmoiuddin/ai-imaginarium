@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MainLayout from '@/components/layouts/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function PromptLibraryPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -24,7 +23,6 @@ export default function PromptLibraryPage() {
       try {
         const data = await getAllPrompts();
         setPrompts(data);
-        setFilteredPrompts(data);
       } catch (error) {
         console.error('Error loading prompts:', error);
       } finally {
@@ -34,25 +32,18 @@ export default function PromptLibraryPage() {
     loadPrompts();
   }, []);
 
-  useEffect(() => {
-    let filtered = prompts;
-
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.prompt_text.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredPrompts(filtered);
-  }, [searchQuery, selectedCategory, prompts]);
+  const filteredPrompts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return prompts.filter((p) => {
+      const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchesQuery =
+        !query ||
+        p.title.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query) ||
+        p.prompt_text.toLowerCase().includes(query);
+      return matchesCategory && matchesQuery;
+    });
+  }, [prompts, searchQuery, selectedCategory]);
 
   const handleCopy = async (prompt: Prompt) => {
     try {

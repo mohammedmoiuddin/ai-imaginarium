@@ -38,7 +38,11 @@ export default function LoginPage() {
     setLoading(false);
 
     if (signInError) {
-      setError('Invalid username or password');
+      if (signInError.message.toLowerCase().includes('email not confirmed')) {
+        setError('Email confirmation is required before sign in.');
+      } else {
+        setError('Invalid username or password');
+      }
     } else {
       navigate(from, { replace: true });
     }

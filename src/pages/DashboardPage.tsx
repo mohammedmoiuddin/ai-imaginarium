@@ -11,31 +11,26 @@ import type { UserProgress, UserAchievement } from '@/types';
 import { Terminal, BookOpen, TrendingUp, PenTool, Scale, Library, Trophy, MessageSquare, Zap, ArrowRight, Sparkles } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const [progress, setProgress] = useState<UserProgress[]>([]);
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isFirstLogin, setIsFirstLogin] = useState(false);
+  const [isReturning, setIsReturning] = useState<boolean | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
-      if (!profile) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const [progressData, achievementsData] = await Promise.all([
-          getUserProgress(profile.id),
-          getUserAchievements(profile.id),
+          getUserProgress(user.id),
+          getUserAchievements(user.id),
         ]);
         setProgress(progressData);
         setAchievements(achievementsData);
-        
-        // Check if this is the first login (no progress and no achievements yet)
-        // Or check if account was created very recently (within last 5 minutes)
-        const accountAge = profile.created_at ? new Date().getTime() - new Date(profile.created_at).getTime() : Infinity;
-        const isNewAccount = accountAge < 5 * 60 * 1000; // 5 minutes
-        const hasNoActivity = progressData.length === 0 && achievementsData.length === 0;
-        
-        setIsFirstLogin(isNewAccount || hasNoActivity);
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -44,7 +39,23 @@ export default function DashboardPage() {
     };
 
     loadData();
-  }, [profile]);
+  }, [profile?.created_at, user?.id, user?.created_at]);
+
+  useEffect(() => {
+    if (!user) return;
+    const userId = user?.id || user?.email || "guest";
+    const storageKey = "hasVisited_" + userId;
+    const hasVisited = localStorage.getItem(storageKey);
+    if (hasVisited) {
+      setIsReturning(true);
+    } else {
+      localStorage.setItem(storageKey, "true");
+      setIsReturning(false);
+    }
+  }, [user]);
+
+  const displayName = profile?.username || user?.email?.split('@')[0] || 'Learner';
+  const greeting = isReturning === null ? "" : isReturning ? "Welcome back" : "Welcome";
 
   const totalModules = 5;
   const completedModules = progress.filter((p) => p.completed).length;
@@ -128,10 +139,10 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold gradient-text">
-                  {isFirstLogin ? `Welcome, ${profile?.username}!` : `Welcome back, ${profile?.username}!`}
+                  {`${greeting}, ${displayName}!`}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  {isFirstLogin ? 'Begin your journey to master AI prompting' : 'Ready to master AI prompting?'}
+                  {isReturning ? 'Ready to master AI prompting?' : 'Begin your journey to master AI prompting!'}
                 </p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import IntersectObserver from '@/components/common/IntersectObserver';
+import ScrollToTop from '@/components/common/ScrollToTop';
 import Header from '@/components/layouts/Header';
 
 import routes from './routes';
@@ -15,6 +16,7 @@ const App: React.FC = () => {
       <AuthProvider>
         <RouteGuard>
           <IntersectObserver />
+          <ScrollToTop />
           <div className="flex flex-col min-h-screen">
             <Header />
             <Routes>
